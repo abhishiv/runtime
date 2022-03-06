@@ -1,0 +1,86 @@
+{
+  "name": "@gratico/runtime",
+  "version": "0.8.3",
+  "author": "Abhishiv Saxena<abhishiv@gmail.com>",
+  "description": "CJS Runtime for browser",
+  "license": "UNLICENSED",
+  "keywords": [
+    "gratico-engineering"
+  ],
+  "url": "https://github.com/gratico/kernel",
+  "accessConfig": {
+    "public": true
+  },
+  "files": [
+    "/dist"
+  ],
+  "main": "./dist/cjs/index.js",
+  "typings": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "scripts": {
+    "test": "make test",
+    "build": "make build"
+  },
+  "dependencies": {
+    "@gratico/atom": "^0.1.2",
+    "@gratico/bodhi": "^0.8.3",
+    "@gratico/fs": "^0.8.3",
+    "@gratico/subway": "0.8.4",
+    "broadcast-channel": "^4.10.0",
+    "isomorphic-fetch": "^3.0.0",
+    "lodash.groupby": "^4.6.0",
+    "npm-logical-tree": "^1.2.1",
+    "pify": "^5.0.0",
+    "tiny-request-router": "^1.2.2",
+    "tree-crawl": "^1.1.0",
+    "uuid": "^8.3.2"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.4.1",
+    "@types/lodash.isobject": "^3.0.6",
+    "@types/node": "^17.0.21",
+    "@types/pify": "^5.0.1",
+    "@types/shortid": "^0.0.29",
+    "@types/uuid": "^8.3.4",
+    "babel-jest": "^27.5.1",
+    "docco": "^0.9.1",
+    "fetch-vcr": "^3.2.0",
+    "jest": "^27.5.1",
+    "typescript": "^4.1.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "reporters": [
+      "default"
+    ],
+    "setupFiles": [],
+    "transformIgnorePatterns": [
+      "node_modules"
+    ],
+    "modulePathIgnorePatterns": [
+      "__mocks__",
+      "__fixtures__",
+      "dist"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/packages/hq",
+      "<rootDir>/node_modules",
+      "<rootDir>/dist",
+      "<rootDir>/packages/ts-simple-type",
+      "<rootDir>/packages/codesense/src/__tests__/__fixtures__",
+      "<rootDir>/packages/hub/src/e2e",
+      "<rootDir>/packages/*/dist",
+      "<rootDir>/packages/shell/src/public/bundles"
+    ]
+  }
+}

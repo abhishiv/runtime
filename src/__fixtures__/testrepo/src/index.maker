@@ -1,0 +1,197 @@
+---
+
+id: JRR3rQSMy
+kind: ISourceFile
+metadata:
+  "^printer": co.grati.codemaker.printers.ISourceFile
+imports:
+- id: Oc7g6i-bgB
+  kind: ISourceFileImport
+  elements:
+  - id: o3kRkwwGpk
+    kind: ISourceFileImportElement
+    type: default
+    name:
+      id: aWhVOM7pQn
+      kind: IIdentifier
+      name: React
+    as:
+      id: vFwTRSUj56
+      kind: IIdentifier
+      name: React
+  - id: YTElnSdsAR
+    kind: ISourceFileImportElement
+    type: normal
+    name:
+      id: B-UQXrlALn
+      kind: IIdentifier
+      name: useState
+    as:
+      id: vmpgTzfsxg
+      kind: IIdentifier
+      name: useState
+  path:
+    id: 9npg_NNcfK
+    kind: IPrimitiveLiteral
+    value: react
+defs:
+- id: umpF55jSiF
+  kind: IValueDefinition
+  metadata:
+    "^printer": co.grati.codemaker.printers.IValueDefinition
+  name:
+    id: LPsA8Mflv4
+    kind: IIdentifier
+    metadata:
+      "^printer": co.grati.codemaker.printers.IIdentifier
+    name: HomePage
+  value:
+    id: K1Xnt1ZcHK
+    kind: IFunction
+    metadata:
+      "^printer": co.grati.codemaker.printers.ReactFunctionComponent
+    parameters: []
+    paramtersType: []
+    typeParameters: []
+    defaultParameters: []
+    value:
+    - id: zZ1jveHo3M
+      kind: IValueDefinition
+      name:
+        id: b08hYSI5Sx
+        kind: IIdentifier
+        name: output
+      value:
+        id: JE3AWIMqRn
+        kind: ILiteralArray
+        metadata:
+          "^printer": co.grati.codemaker.printers.JSX
+          "^transpiler": co.grati.codemaker.printers.JSX
+          jsxPragma: React
+        value:
+        - id: ZulMr9SUdA
+          kind: IReference
+          link:
+          - id: V4xfqv34xlS
+            kind: IIdentifier
+            name: span
+        - id: YPjShIDD4en
+          kind: ILiteralObject
+          keys:
+          - id: IR3Joa_zj63
+            kind: IIdentifier
+            name: style
+          value:
+          - id: ph_IyXq1b0m
+            kind: ILiteralObject
+            keys: []
+            value: []
+        - id: L_kTXzprlHO
+          kind: IPrimitiveLiteral
+          value: hello world
+        - id: TkbrA6jYu7M
+          kind: ILiteralArray
+          metadata:
+            "^printer": co.grati.codemaker.printers.JSX
+            "^transpiler": co.grati.codemaker.printers.JSX
+            jsxPragma: React
+          value:
+          - id: tn_cGiqVD9S
+            kind: IReference
+            link:
+            - id: cFfKX7mouNK
+              kind: IIdentifier
+              name: span
+          - id: eZN_Ng2IAK3
+            kind: ILiteralObject
+            keys:
+            - id: y-CYLMWeM-g
+              kind: IIdentifier
+              name: style
+            value:
+            - id: sSeTpcB7uuw
+              kind: ILiteralObject
+              keys: []
+              value: []
+          - id: HFRWwU4958u
+            kind: IPrimitiveLiteral
+            value: hello world
+- id: PIhDCK5fxdL
+  kind: IValueDefinition
+  metadata:
+    "^printer": co.grati.codemaker.printers.IValueDefinition
+  name:
+    id: lkQAFzLV93J
+    kind: IIdentifier
+    metadata:
+      "^printer": co.grati.codemaker.printers.IIdentifier
+    name: helloWorldFunction
+  value:
+    id: ArZooMKgHKR
+    kind: IFunction
+    parameters: []
+    paramtersType: []
+    typeParameters: []
+    defaultParameters: []
+    value:
+    - id: hSL8BQLJB2Y
+      kind: IValueDefinition
+      metadata:
+        "^printer": co.grati.codemaker.printers.IValueDefinition
+      name:
+        id: i19ipOMDIKc
+        kind: IIdentifier
+        metadata:
+          "^printer": co.grati.codemaker.printers.IIdentifier
+        name: helloWorldFunction
+      value:
+        id: Y4_9B-dwCJB
+        kind: IPrimitiveLiteral
+        value: 4
+    - id: T4hqb18tr9p
+      kind: IValueDefinition
+      metadata:
+        "^printer": co.grati.codemaker.printers.IValueDefinition
+      name:
+        id: 5LU7xcgoEFk
+        kind: IIdentifier
+        metadata:
+          "^printer": co.grati.codemaker.printers.IIdentifier
+        name: helloWorld
+      value:
+        id: iOgT-lD3U_E
+        kind: IValueEvaluation
+        metadata:
+          "^printer": co.grati.codemaker.printers.IValueEvaluation
+        object:
+          id: nqP9d7hz4bL
+          link:
+          - id: PMazMbgfAvE
+            name: React 
+            kind: IIdentifier
+          - id: _k7AOusqd__
+            name: createElement
+            kind: IIdentifier
+          kind: IReference
+          metadata: {}
+        arguments:
+        - id: 8lN4VQXxqtG
+          metadata: {}
+          kind: IPrimitiveLiteral
+          value: hey there!
+        - id: iZXRPzF4K3B
+          metadata:
+            "^printer": co.grati.codemaker.printers.ILiteralObject
+          kind: ILiteralObject
+          keys:
+          - id: S_qkA9VHWCV
+            kind: IIdentifier
+            name: env
+          value:
+          - id: Mu21qmF_mxg
+            link:
+            - id: aT3rZaOEGvH
+              name: self
+              kind: IIdentifier
+            kind: IReference
+
