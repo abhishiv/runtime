@@ -14,6 +14,11 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '17.x'
+      - uses: actions/cache@v2
+        id: fixtures-cache
+        with:
+          path: './src/__fixtures__/fetch'
+          key: ${{ runner.os }}-fetch-${{ hashFiles('**/__test__/*.ts$') }}
       - name: Install
         run: env NODE_ENV=development yarn
       - name: Test
