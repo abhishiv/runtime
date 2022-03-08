@@ -1,4 +1,4 @@
-import { IFileSystem } from '@gratico/fs'
+import { IFileSystem, IAdapterRecord, FileType } from '@gratico/fs'
 import { IPatch } from '@gratico/atom'
 
 export interface ILogicalTree {
@@ -71,13 +71,18 @@ export interface IRuntimeProps {
   fetch: Fetch
   evalFunction: Function
 }
-
+export interface IRuntimeFSItem {
+  path: string
+  type: 'directory' | 'file'
+}
 export interface IRuntime {
   props: IRuntimeProps
   registry: Map<string, IRuntimeRegistryItem>
   cache: Map<string, any>
   defaultExtensions: string[]
   logicalTree: ILogicalTree | null
+  fileSystemItems: IRuntimeFSItem[]
+  manifests: Map<string, Record<string, any>>
   importModule: {
     (path: string, lTree?: ILogicalTree | null): Promise<any>
   }

@@ -54,6 +54,7 @@ export class PackageManager implements IPackageManager {
 
       await this.syncFileSystem(runtime)
       this.runtime = runtime
+      await runtime.boot()
       const mod = this.runtime.importModule(path)
       //      this.moduleRegistry.set(path, mod);
       return mod

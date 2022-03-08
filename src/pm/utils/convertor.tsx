@@ -1,8 +1,7 @@
 import { isRelative, path as nodePath } from '@gratico/fs'
 import { IRuntime, ModuleDependency, ILogicalTree } from '../../specs/index'
 import coreModules from '../../runtime/node/core/index'
-import { getLogicalTree } from './dependency_tree'
-
+import { getLogicalTree, logicalTreeAdressToFSPath } from './dependency_tree'
 // parse depName into an object
 export function parseNPMModuleLocation(path: string): { name: string; path?: string; main: boolean } {
   const parts = path.split('/')
@@ -71,13 +70,27 @@ export async function convertPathToModuleDependency(
     }
   }
   if (importIsRelative) {
-    const p = moduleTree.name === 'react-icons' && path == './lib' ? path + '/index.js' : path
+    let resolvedFSPath = path
+    const pkgPath = nodePath.join(runtime.props.workDir, 'node_modules', logicalTreeAdressToFSPath(moduleTree.address))
+    const fsPath = nodePath.join(pkgPath, path)
+    const fsItem = runtime.fileSystemItems.find((el) => el.path === fsPath)
+    if (fsItem && fsItem.type === 'file') {
+    } else {
+      const pkgPath = nodePath.join(fsPath, 'package.json')
+      const manifest = runtime.manifests.get(pkgPath)
+      if (manifest) {
+        resolvedFSPath = './' + nodePath.join(path, manifest.main)
+      } else {
+        // todo handle this case as well
+        //resolvedFSPath = nodePath.join('./', path, 'index')
+      }
+    }
     return {
       parent: parentDep,
       specifiedPath,
       pkg: moduleTree,
       modulePath: '.',
-      resolvedFSPath: p,
+      resolvedFSPath,
       type: 'source',
     }
   } else {

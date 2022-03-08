@@ -1,8 +1,9 @@
-import { isRelative } from '@gratico/fs'
-import { IRuntime, IRuntimeProps, IRuntimeRegistryItem, ILogicalTree } from '../specs/runtime'
+import { isRelative, FileType } from '@gratico/fs'
+import { IRuntime, IRuntimeProps, IRuntimeRegistryItem, ILogicalTree, IRuntimeFSItem } from '../specs/runtime'
 import { loadModuleText, extractCJSDependencies, evalModule, registerModule, getModuleKey } from './utils/cjs'
 import { getLogicalTree } from '../pm/utils/dependency_tree'
 import { convertPathToModuleDependency, parseNPMModuleLocation } from '../pm/utils/convertor'
+import promisify from 'pify'
 
 class Runtime implements IRuntime {
   props: IRuntimeProps
@@ -11,7 +12,8 @@ class Runtime implements IRuntime {
   defaultExtensions: string[]
   logicalTree: ILogicalTree | null
   extensions: unknown[]
-
+  fileSystemItems: IRuntimeFSItem[]
+  manifests: Map<string, Record<string, any>>
   constructor(props: IRuntimeProps) {
     this.props = props
     this.registry = new Map<string, IRuntimeRegistryItem>()
@@ -19,9 +21,37 @@ class Runtime implements IRuntime {
     this.cache = new Map<string, unknown>()
     this.logicalTree = null
     this.extensions = []
+    this.fileSystemItems = []
+    this.manifests = new Map()
   }
 
   async boot() {
+    const files = await this.props.fs.adapter.query({ id: { $regex: this.props.workDir } })
+    console.log('files', files)
+    this.fileSystemItems = files.map((el) => ({
+      path: el.id,
+      type: el.type === FileType.FILE ? 'file' : 'directory',
+    }))
+    const manifestItems = this.fileSystemItems.filter((el) => el.path.match(/\/package.json$/))
+
+    const manifests = await Promise.all(
+      manifestItems.map(async (el) => {
+        const fileText = await promisify(this.props.fs.readFile)(el.path, 'utf8')
+        try {
+          const json = JSON.parse(fileText)
+          return json
+        } catch (e) {
+          console.log(el)
+          console.error(e)
+          return {}
+        }
+      }),
+    )
+
+    manifestItems.forEach((el, i) => {
+      this.manifests.set(el.path, manifests[i])
+    })
+
     return
   }
 
