@@ -35,8 +35,6 @@ export async function flushFileTree(
   }, [])
 
   const jobs: FileList[] = []
-  console.log('computing', list)
-
   list.forEach((item) => {
     const { pkgData, path, tree } = item
 
@@ -63,7 +61,7 @@ export async function flushFileTree(
     )
   })
 
-  console.log('jobs', jobs)
+  console.log('jobs', jobs.length)
 
   const orderedFileList = jobs
   const groupedFileList = groupBy(orderedFileList, (node) => node.pathList.slice(0, node.pathList.length - 1).join('/'))
@@ -73,7 +71,6 @@ export async function flushFileTree(
     .map((key) => groupedFileList[key])
 
   const { workingDirectory: workDir, fs } = props
-  console.log(listAndGroupedFileList)
   //  console.log(fs)
 
   const tasks = listAndGroupedFileList.map((items: FileList[]) => {

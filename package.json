@@ -1,6 +1,6 @@
 {
   "name": "@gratico/runtime",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "author": "Abhishiv Saxena<abhishiv@gmail.com>",
   "description": "CJS Runtime for browser",
   "license": "UNLICENSED",
@@ -30,7 +30,7 @@
   "dependencies": {
     "@gratico/atom": "^0.1.2",
     "@gratico/bodhi": "^0.8.3",
-    "@gratico/fs": "^0.8.3",
+    "@gratico/fs": "^0.8.4",
     "@gratico/subway": "0.8.4",
     "@types/url-join": "^4.0.1",
     "broadcast-channel": "^4.10.0",

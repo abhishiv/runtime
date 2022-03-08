@@ -1143,10 +1143,10 @@
   dependencies:
     pure-md5 "0.1.13"
 
-"@gratico/fs@^0.8.3":
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/@gratico/fs/-/fs-0.8.3.tgz#187351068d8b24314b96cedbccd396be9a81711b"
-  integrity sha512-fgkeGLfeud2O0+/NDtg1mOi0X7bZJS4tg6NSaUmd/tin+HJ1Tr3fEXdTP5R2QisW5KgdovEs6mK7DDMKpB5hqQ==
+"@gratico/fs@^0.8.4":
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/@gratico/fs/-/fs-0.8.4.tgz#0315d4b108bc51bbab73c443d10103474f6303c9"
+  integrity sha512-qXz+N7jmbnIQv+XwL0hppHF1Fj+MEjouc14FxEwYkVOrCxmoIENHv9b2XNtn5jUBq3aZ/ttDHmQMEb3Zgd91+A==
   dependencies:
     "@gratico/checksum" "*"
     buffer "^5.6.0"
