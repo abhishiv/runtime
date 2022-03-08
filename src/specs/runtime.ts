@@ -1,20 +1,15 @@
 import { IFileSystem } from '@gratico/fs'
 import { IPatch } from '@gratico/atom'
 
-export interface LogicalTree {
-  dependencies: Map<string, LogicalTree>
+export interface ILogicalTree {
+  dependencies: Map<string, ILogicalTree>
   name: string
   version: string
   isRoot: boolean
   address: string
 }
 
-//import { Fetch } from '@oss-stealth/utils/dist/request/index'
-// import { ILogicalTree } from "../../src/utils/npm_tree";
-
 type Fetch = Window['fetch']
-
-export type ILogicalTree = LogicalTree
 
 export interface NPMLockFileDependency {
   version: string

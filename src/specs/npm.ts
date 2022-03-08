@@ -40,10 +40,24 @@ export interface PkgManifest {
 
 export interface PkgData extends Pkg {
   filesList: Array<string>
+  fileTree: PkgDirectory
   vendorFiles: {
     [key: string]: string
   }
 }
+
+export interface PkgDirectory {
+  type: 'directory'
+  name: string
+  files: PkgTreeNode[]
+  fullName: string
+}
+export interface PkgFile {
+  type: 'file'
+  name: string
+  fullName: string
+}
+export type PkgTreeNode = PkgDirectory | PkgFile
 
 export interface PkgMeta extends Pkg {
   fileList: Array<string>

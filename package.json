@@ -32,6 +32,7 @@
     "@gratico/bodhi": "^0.8.3",
     "@gratico/fs": "^0.8.3",
     "@gratico/subway": "0.8.4",
+    "@types/url-join": "^4.0.1",
     "broadcast-channel": "^4.10.0",
     "isomorphic-fetch": "^3.0.0",
     "lodash.groupby": "^4.6.0",
@@ -39,6 +40,7 @@
     "pify": "^5.0.0",
     "tiny-request-router": "^1.2.2",
     "tree-crawl": "^1.1.0",
+    "url-join": "^4.0.1",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {},

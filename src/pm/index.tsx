@@ -1,4 +1,4 @@
-import { IPackageManager, IPackageManagerProps, IRuntime, PkgManifest, LogicalTree } from '../specs/index'
+import { IPackageManager, IPackageManagerProps, IRuntime, PkgManifest, ILogicalTree } from '../specs/index'
 import { IFileSystem } from '@gratico/fs'
 import { getLogicalTree } from './utils/dependency_tree'
 
@@ -9,7 +9,7 @@ type Fetch = Window['fetch']
 
 export class PackageManager implements IPackageManager {
   props: IPackageManagerProps
-  logicalTree: LogicalTree | null
+  logicalTree: ILogicalTree | null
   runtime?: IRuntime
   moduleRegistry: Map<string, any>
   constructor(fs: IFileSystem, workingDirectory: string, fetch: Fetch, evalFunction?: Function) {

@@ -1,4 +1,4 @@
-import { isRelative } from '../npm/node-module-resolution/index'
+import { isRelative } from '@gratico/fs'
 import { IRuntime, IRuntimeProps, IRuntimeRegistryItem, ILogicalTree } from '../specs/runtime'
 import { loadModuleText, extractCJSDependencies, evalModule, registerModule, getModuleKey } from './utils/cjs'
 import { getLogicalTree } from '../pm/utils/dependency_tree'
@@ -15,7 +15,7 @@ class Runtime implements IRuntime {
   constructor(props: IRuntimeProps) {
     this.props = props
     this.registry = new Map<string, IRuntimeRegistryItem>()
-    this.defaultExtensions = ['.js', '.jsx', '.json', '.ts', '.tsx']
+    this.defaultExtensions = ['.js', '.jsx', '.json', '.ts', '.tsx', '.cjs']
     this.cache = new Map<string, unknown>()
     this.logicalTree = null
     this.extensions = []

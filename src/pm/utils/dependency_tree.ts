@@ -2,7 +2,8 @@ import promisify from 'pify'
 import crawl from 'tree-crawl'
 import { IFileSystem as IFilesystem } from '@gratico/fs'
 import { path as nodePath } from '@gratico/fs'
-import npmLogicalTree, { LogicalTree, ILogicalTree } from '../../runtime/utils/npm_tree'
+import npmLogicalTree, { LogicalTree } from '../../npm/logical_tree'
+import { ILogicalTree } from '../../specs/index'
 
 // parse package-lock.json or yarn.lock to get `LogicalTree`
 export async function getLogicalTree(fs: IFilesystem, packageRoot: string): Promise<LogicalTree> {

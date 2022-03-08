@@ -1,7 +1,4 @@
-import nodePath from '../../utils/path'
-import promisify from 'pify'
-import { convertPathToModuleDependency, parseNPMModuleLocation } from '../../pm/utils/convertor'
-import { logicalTreeAdressToFSPath } from '../../pm/utils/dependency_tree'
+import { mkdirP, isRelative, path as nodePath } from '@gratico/fs'
 import {
   IRuntime,
   EvaledModuleLoad,
@@ -11,9 +8,10 @@ import {
   ModuleDependency,
   ILogicalTree,
 } from '../../specs/runtime'
+import promisify from 'pify'
+import { convertPathToModuleDependency, parseNPMModuleLocation } from '../../pm/utils/convertor'
+import { logicalTreeAdressToFSPath } from '../../pm/utils/dependency_tree'
 import coreModules from '../node/core/index'
-import { isRelative } from '../../npm/node-module-resolution/index'
-import { mkdirP } from '@gratico/fs'
 
 export async function fetchSourceFile(path: string, fetch: Window['fetch']) {
   const host = 'cdn.jsdelivr.net'

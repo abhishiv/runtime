@@ -1,5 +1,6 @@
-import nodePath from '../../utils/path'
-import { ILogicalTree as ILogicalTreeImport } from '../../specs/runtime'
+import { path as nodePath } from '@gratico/fs'
+import { ILogicalTree as ILogicalTreeImport } from '../specs/runtime'
+
 // import { PkgManifest, LockFileDescriptor } from "../../specs/npm";
 export type ILogicalTree = ILogicalTreeImport
 export class LogicalTree implements ILogicalTree {

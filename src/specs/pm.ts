@@ -1,5 +1,5 @@
 import { IFileSystem } from '@gratico/fs'
-import { LogicalTree } from './runtime'
+import { ILogicalTree } from './runtime'
 import { IRuntime } from './runtime'
 type Fetch = Window['fetch']
 
@@ -11,7 +11,7 @@ export interface IPackageManagerProps {
 }
 export interface IPackageManager {
   props: IPackageManagerProps
-  logicalTree: LogicalTree | null
+  logicalTree: ILogicalTree | null
   runtime?: IRuntime
   boot: () => Promise<void>
   syncFileSystem: (runtime: IRuntime) => Promise<void>

@@ -1,9 +1,8 @@
-import { IRuntime, ModuleDependency } from '../../specs/index'
-import { ILogicalTree } from '../../../src/runtime/utils/npm_tree'
-import { getLogicalTree } from './dependency_tree'
-import nodePath from '../../utils/path'
+import { isRelative, path as nodePath } from '@gratico/fs'
+import { IRuntime, ModuleDependency, ILogicalTree } from '../../specs/index'
 import coreModules from '../../runtime/node/core/index'
-import { isRelative } from '../../npm/node-module-resolution/index'
+import { getLogicalTree } from './dependency_tree'
+
 // parse depName into an object
 export function parseNPMModuleLocation(path: string): { name: string; path?: string; main: boolean } {
   const parts = path.split('/')
@@ -43,6 +42,9 @@ export function getModulePath(runtime: IRuntime, lTree: ILogicalTree, parsedPath
   }
   // console.log(lTree, pkgJSON);
   const main = pkgJSON.main || pkgJSON.files[0]
+  //if (lTree.name === 'react-icons') {
+  //  console.log(parsedPath)
+  //}
   if (!parsedPath.main) {
     return './' + nodePath.join(parsedPath.path)
   } else {
@@ -69,16 +71,18 @@ export async function convertPathToModuleDependency(
     }
   }
   if (importIsRelative) {
+    const p = moduleTree.name === 'react-icons' && path == './lib' ? path + '/index.js' : path
     return {
       parent: parentDep,
       specifiedPath,
       pkg: moduleTree,
       modulePath: '.',
-      resolvedFSPath: path,
+      resolvedFSPath: p,
       type: 'source',
     }
   } else {
     const npmModule = parseNPMModuleLocation(path)
+
     let tree = moduleTree.dependencies.get(npmModule.name)
     if (!tree) {
       const rootTree = await getLogicalTree(runtime.props.fs, runtime.props.workDir)
@@ -90,17 +94,19 @@ export async function convertPathToModuleDependency(
       throw new Error('runtime #convertPathToModuleDependency ')
     }
     const modulePath = getModuleLocaton(tree)
-    // console.log(npmModule, tree);
-    // console.log("meta", meta, tree, npmModule);
+    //    console.log(npmModule, tree)
+    //    console.log('meta', modulePath, tree, npmModule)
+    const p =
+      npmModule.name === 'react-icons' && npmModule.path == './bi'
+        ? npmModule.path + '/index.js'
+        : './' + nodePath.join(npmModule.path || 'index.js')
     return {
       parent: parentDep,
       type: 'npm',
       pkg: tree,
       specifiedPath: path,
       modulePath,
-      resolvedFSPath: npmModule.main
-        ? getModulePath(runtime, tree, npmModule)
-        : './' + nodePath.join(npmModule.path || 'index.js'),
+      resolvedFSPath: npmModule.main ? getModulePath(runtime, tree, npmModule) : p,
     }
   }
 }
