@@ -1,4 +1,6 @@
 import { mkdirP, isRelative, path as nodePath } from '@gratico/fs'
+import promisify from 'pify'
+//import { transform } from 'esbuild-wasm'
 import {
   IRuntime,
   EvaledModuleLoad,
@@ -8,18 +10,29 @@ import {
   ModuleDependency,
   ILogicalTree,
 } from '../../specs/runtime'
-import promisify from 'pify'
+
 import { convertPathToModuleDependency, parseNPMModuleLocation } from '../../pm/utils/convertor'
 import { logicalTreeAdressToFSPath } from '../../pm/utils/dependency_tree'
 import coreModules from '../node/core/index'
 
-export async function fetchSourceFile(path: string, fetch: Window['fetch']) {
+export async function fetchSourceFile(runtime: IRuntime, path: string, fetch: Window['fetch']) {
   const host = 'cdn.jsdelivr.net'
-  const resp = await fetch(`https://${host}${path}`)
-  if (resp.status === 200) {
-    return resp.text()
+  const url = `https://${host}${path}`
+  if (runtime.cache.get(url)) {
+    const text = await Promise.resolve(runtime.cache.get(url))
+    runtime.cache.set(url, null)
+    return text
   } else {
-    throw new Error(resp.status.toString())
+    const promise = (async () => {
+      const resp = await fetch(url)
+      if (resp.status === 200) {
+        return resp.text()
+      } else {
+        throw new Error(resp.status.toString())
+      }
+    })()
+    runtime.cache.set(url, promise)
+    return Promise.resolve(promise)
   }
 }
 
@@ -114,12 +127,6 @@ export async function evalModule(load: ProcessedModuleLoad, evalFunction: Functi
   } catch (e) {
     console.error(e)
     throw e
-    // console.log("load", load, depModules);
-    return {
-      ...load,
-      state: 'evaled',
-      module: m,
-    }
   }
 }
 
@@ -187,8 +194,15 @@ export async function defaultDependencyFileFetcher(runtime: IRuntime, dep: Modul
   }
   if (!rawText) {
     const url = `/npm/${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`
-    let textFile = await fetchSourceFile(url, runtime.props.fetch)
-    rawText = textFile
+    let textFile = await fetchSourceFile(runtime, url, runtime.props.fetch)
+
+    //    textFile = textFile.replace('process.env.NODE_ENV', JSON.stringify('production'))
+    //    try {
+    //      const result = await transform(textFile, {
+    //        minify: true,
+    //      })
+    //      textFile = result.code
+    //    } catch (e) {}
 
     // todo: base64 inline sourcemap instead of this or rewrite to proper url
     // todo: https://github.com/ehmicky/get-sourcemaps/issues/3
@@ -218,6 +232,7 @@ export async function defaultDependencyFileFetcher(runtime: IRuntime, dep: Modul
     } catch (e) {
       console.error('writefile eee', e)
     }
+    rawText = textFile
   }
   return rawText
 }

@@ -4,6 +4,7 @@ import { loadModuleText, extractCJSDependencies, evalModule, registerModule, get
 import { getLogicalTree } from '../pm/utils/dependency_tree'
 import { convertPathToModuleDependency, parseNPMModuleLocation } from '../pm/utils/convertor'
 import promisify from 'pify'
+//import { initialize } from 'esbuild-wasm'
 
 class Runtime implements IRuntime {
   props: IRuntimeProps
@@ -51,7 +52,11 @@ class Runtime implements IRuntime {
     manifestItems.forEach((el, i) => {
       this.manifests.set(el.path, manifests[i])
     })
-
+    //    try {
+    //      await initialize({
+    //        wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.25/esbuild.wasm',
+    //      })
+    //    } catch (e) {}
     return
   }
 
