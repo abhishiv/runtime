@@ -26,7 +26,6 @@ jobs:
         run: make test
       - name: Build
         run: env NODE_ENV=production make build
-      - run: echo ${{ secrets.NPM_TOKEN }}
       - id: Publish
         uses: JS-DevTools/npm-publish@v1
         with:
