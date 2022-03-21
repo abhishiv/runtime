@@ -14,6 +14,10 @@ test:
 build:
 	make tsc
 
+.PHONY: typecheck
+typecheck:
+	./node_modules/.bin/tsc --resolveJsonModule -p ./tsconfig.json --noEmit
+
 .PHONY: tsc
 tsc:
 	./node_modules/.bin/tsc --resolveJsonModule -p ./tsconfig.json --outDir ./dist/esm

@@ -1,19 +1,22 @@
-import { IFileSystem } from '@gratico/fs'
-import { ILogicalTree } from './runtime'
-import { IRuntime } from './runtime'
-type Fetch = Window['fetch']
+import { IFileSystem } from "@gratico/fs";
+import { ILogicalTree } from "./runtime";
+import { IRuntime } from "./runtime";
+type Fetch = Window["fetch"];
 
 export interface IPackageManagerProps {
-  fs: IFileSystem
-  workingDirectory: string
-  fetch: Fetch
-  evalFunction: Function
+  fs: IFileSystem;
+  workingDirectory: string;
+  fetch: Fetch;
+  evalFunction: Function;
+  builtins: {
+    [key: string]: any;
+  };
 }
 export interface IPackageManager {
-  props: IPackageManagerProps
-  logicalTree: ILogicalTree | null
-  runtime?: IRuntime
-  boot: () => Promise<void>
-  syncFileSystem: (runtime: IRuntime) => Promise<void>
-  getModule: <T>(path: string) => Promise<T>
+  props: IPackageManagerProps;
+  logicalTree: ILogicalTree | null;
+  runtime?: IRuntime;
+  boot: () => Promise<void>;
+  syncFileSystem: (runtime: IRuntime) => Promise<void>;
+  getModule: <T>(path: string) => Promise<T>;
 }
