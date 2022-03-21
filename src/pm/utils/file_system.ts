@@ -4,7 +4,7 @@ import groupBy from 'lodash.groupby'
 import { IFileSystem as IFilesystem, path as nodePath, mkdirP, normalizePath } from '@gratico/fs'
 import promisify from 'pify'
 import { logicalTreeAdressToFSPath } from './dependency_tree'
-import path from 'path'
+import path, { basename } from 'path'
 
 export interface IntermediateFileTree {
   tree: ILogicalTree
@@ -23,18 +23,22 @@ export async function flushFileTree(
     trees: { id: string; tree: ILogicalTree }[]
   }[],
 ) {
-  const list = downloadedPackages.reduce<IntermediateFileTree[]>(function (state, item) {
-    return [
-      ...state,
+  const list: IntermediateFileTree[] = []
+
+  for (var key in Object.keys(downloadedPackages)) {
+    const item = downloadedPackages[key]
+    list.splice(
+      list.length,
+      0,
       ...item.trees.map((tree) => ({
         tree: tree.tree,
         path: logicalTreeAdressToFSPath(tree.tree.address),
         pkgData: item.pkgData,
       })),
-    ]
-  }, [])
+    )
+  }
 
-  const jobs: FileList[] = []
+  const jobs: [string, FileList[]][] = []
   list.forEach((item) => {
     const { pkgData, path, tree } = item
 
@@ -43,14 +47,22 @@ export async function flushFileTree(
       (node) => {
         const filePath = nodePath.join(props.workingDirectory, 'node_modules', path, node.fullName)
         const pathList = filePath.split('/')
+        const baseName = nodePath.dirname(filePath)
+        const j: [string, FileList[]] =
+          jobs.find((el) => el[0] === baseName) ||
+          (function () {
+            const entry: [string, FileList[]] = [baseName, []]
+            jobs.push(entry)
+            return entry
+          })()
         if (node.type === 'directory')
-          jobs.push({
+          j[1].push({
             pathList,
             fileName: node.name,
             isFolder: true,
           })
         if (node.type === 'file' && (pkgData.vendorFiles[node.fullName] || node.name === 'package.json'))
-          jobs.push({
+          j[1].push({
             pathList,
             fileName: node.name,
             isFolder: false,
@@ -61,20 +73,15 @@ export async function flushFileTree(
     )
   })
 
-  console.log('jobs', jobs.length)
-
-  const orderedFileList = jobs
-  const groupedFileList = groupBy(orderedFileList, (node) => node.pathList.slice(0, node.pathList.length - 1).join('/'))
-
-  const listAndGroupedFileList = Object.keys(groupedFileList)
-    .sort()
-    .map((key) => groupedFileList[key])
+  console.log('jobs', jobs[1])
 
   const { workingDirectory: workDir, fs } = props
   //  console.log(fs)
 
-  const tasks = listAndGroupedFileList.map((items: FileList[]) => {
-    return async () => {
+  const tasks = []
+  for (let entry of jobs) {
+    const [baseName, items] = entry
+    tasks.push(async () => {
       await Promise.all(
         items.map(async (item) => {
           const path = nodePath.join(item.pathList.join('/'))
@@ -89,8 +96,8 @@ export async function flushFileTree(
           }
         }),
       )
-    }
-  })
+    })
+  }
   for await (const task of tasks) {
     await task()
   }

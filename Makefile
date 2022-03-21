@@ -4,7 +4,7 @@ project:
 
 .PHONY: install
 install:
-	yarn install --prefer-offline
+	npm install --prefer-offline --no-audit
 
 .PHONY: test
 test:

@@ -18,9 +18,8 @@ import coreModules from '../node/core/index'
 export async function fetchSourceFile(runtime: IRuntime, path: string, fetch: Window['fetch']) {
   const host = 'cdn.jsdelivr.net'
   const url = `https://${host}${path}`
-  if (runtime.cache.get(url)) {
-    const text = await Promise.resolve(runtime.cache.get(url))
-    runtime.cache.set(url, null)
+  if (runtime.cache.get(path)) {
+    const text = await Promise.resolve(runtime.cache.get(path))
     return text
   } else {
     const promise = (async () => {
@@ -31,7 +30,7 @@ export async function fetchSourceFile(runtime: IRuntime, path: string, fetch: Wi
         throw new Error(resp.status.toString())
       }
     })()
-    runtime.cache.set(url, promise)
+    runtime.cache.set(path, promise)
     return Promise.resolve(promise)
   }
 }
@@ -229,8 +228,9 @@ export async function defaultDependencyFileFetcher(runtime: IRuntime, dep: Modul
 
     try {
       await promisify(fs.writeFile as any)(fullFilePath, textFile)
+      runtime.cache.set(url, null)
     } catch (e) {
-      console.error('writefile eee', e)
+      console.error('writefile', e, url)
     }
     rawText = textFile
   }

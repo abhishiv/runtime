@@ -20,14 +20,11 @@ export async function populateFileSystem(props: IPackageManagerProps, logicalTre
     logicalTree,
   })
 
-  console.log('missingPackages', packages)
+  console.log('missingPackages', Object.keys(packages).length)
   const downloadPackages = await Promise.all(
     Object.values(packages).map(async (trees) => {
       const tree = trees[0].tree
       const pkgData = await fetchPkgData(tree.name, tree.version, props.fetch)
-      if (tree.name === 'react-icons') {
-        console.log('pkgData', pkgData)
-      }
       // be carefull to store pkgData on all neded locations
       return { pkgData, trees }
     }),

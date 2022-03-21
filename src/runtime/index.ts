@@ -28,7 +28,6 @@ class Runtime implements IRuntime {
 
   async boot() {
     const files = await this.props.fs.adapter.query({ id: { $regex: this.props.workDir } })
-    console.log('files', files)
     this.fileSystemItems = files.map((el) => ({
       path: el.id,
       type: el.type === FileType.FILE ? 'file' : 'directory',
