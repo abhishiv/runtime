@@ -73,6 +73,11 @@ class Runtime implements IRuntime {
     manifestItems.forEach((el, i) => {
       this.manifests.set(el.path, manifests[i]);
     });
+    Object.keys(this.props.builtins||{}).forEach((keyName: string) => {
+      if (keyName.match(/package.json$/)) {
+        this.manifests.set(keyName, this.props.builtins[keyName])
+      }
+    })
     //    try {
     //      await initialize({
     //        wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.25/esbuild.wasm',
