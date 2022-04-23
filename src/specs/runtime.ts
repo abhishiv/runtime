@@ -1,5 +1,4 @@
 import { IFileSystem, IAdapterRecord, FileType } from "@gratico/fs";
-import { IPatch } from "@gratico/atom";
 export interface IRuntimeTranspiler {
   include?: string[];
   exclude?: string[];
@@ -35,7 +34,6 @@ export interface NPMLockFileDependency {
   dependencies?: {
     [key: string]: NPMLockFileDependency;
   };
-  b?: IPatch;
 }
 
 export interface NPMPackageManifest {

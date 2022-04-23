@@ -28,6 +28,7 @@
     "build": "make build"
   },
   "dependencies": {
+    "@gratico/fs": "^0.8.5",
     "@types/url-join": "^4.0.1",
     "broadcast-channel": "^4.10.0",
     "isomorphic-fetch": "^3.0.0",
@@ -43,7 +44,6 @@
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@gratico/fs": "^0.8.5",
     "@types/isomorphic-fetch": "^0.0.35",
     "@types/jest": "^27.4.1",
     "@types/lodash.groupby": "^4.6.6",
