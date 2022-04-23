@@ -25,7 +25,8 @@ export async function getPM() {
   const fs = await createTestFilesystem();
   await pify(fs.writeFile)(
     "/sample.tsx",
-    `import React from 'react';
+    `import React from 'immer';
+    export * from 'react'
     export const R = React
     `
   );

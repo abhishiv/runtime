@@ -1,6 +1,5 @@
 import { mkdirP, isRelative, path as nodePath } from "@gratico/fs";
 import promisify from "pify";
-//import { transform } from 'esbuild-wasm'
 import {
   IRuntime,
   EvaledModuleLoad,
@@ -10,7 +9,6 @@ import {
   ModuleDependency,
   ILogicalTree,
 } from "../../specs/runtime";
-
 import {
   convertPathToModuleDependency,
   parseNPMModuleLocation,
@@ -230,9 +228,7 @@ export async function defaultDependencyFileFetcher(
       "utf8"
     );
     rawText = textFile;
-  } catch (e) {
-    // console.error(e);
-  }
+  } catch (e) {}
   if (!rawText) {
     const url = `/npm/${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`;
     let textFile = await fetchSourceFile(runtime, url, runtime.props.fetch);
@@ -289,16 +285,13 @@ export async function loadLocalModulText(
     runtime.props.workDir,
     getFilePath(dep, runtime)
   );
-  console.log(filePath);
   rawText = await promisify(fs.readFile)(filePath, "utf8");
-  console.log("rawText", rawText);
   const transpiler = runtime.props.transpilers?.find((el) =>
     filePath.match(el.matcher)
   );
   if (transpiler) {
     rawText = await transpiler.transpile(filePath, rawText);
   }
-  console.log(rawText);
   return {
     path: filePath,
     state: "evaled",

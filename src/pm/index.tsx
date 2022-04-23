@@ -7,9 +7,9 @@ import {
   IRuntimeTranspiler,
 } from "../specs/index";
 import { IFileSystem } from "@gratico/fs";
-import { getLogicalTree } from "./utils/dependency_tree";
 
 import Runtime from "../runtime/index";
+import { getLogicalTree } from "./utils/dependency_tree";
 import { populateFileSystem } from "./utils/populate";
 
 type Fetch = Window["fetch"];

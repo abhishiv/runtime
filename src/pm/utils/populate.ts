@@ -2,15 +2,14 @@ import { IFileSystem as IFilesystem, path as nodePath } from "@gratico/fs";
 import promisify from "pify";
 import { mkdirP, normalizePath } from "@gratico/fs";
 
-import { fetchPkgData } from "../../npm";
 import { IPackageManagerProps, ILogicalTree } from "../../specs";
-
+import { fetchPkgData } from "../../npm";
 import {
   getAddressList,
   logicalTreeAdressToFSPath,
   getLogicalTree,
 } from "./dependency_tree";
-import { flushFileTree, IntermediateFileTree } from "./file_system";
+import { flushFileTree } from "./file_system";
 
 export async function populateFileSystem(
   props: IPackageManagerProps,

@@ -1,22 +1,14 @@
+import crawl from "tree-crawl";
+import { path as nodePath, mkdirP } from "@gratico/fs";
+import promisify from "pify";
+
 import {
   IPackageManagerProps,
   ILogicalTree,
   PkgData,
   PkgTreeNode,
-  PkgDirectory,
-  PkgFile,
 } from "../../specs";
-import crawl from "tree-crawl";
-import groupBy from "lodash.groupby";
-import {
-  IFileSystem as IFilesystem,
-  path as nodePath,
-  mkdirP,
-  normalizePath,
-} from "@gratico/fs";
-import promisify from "pify";
 import { logicalTreeAdressToFSPath } from "./dependency_tree";
-import path, { basename } from "path";
 
 export interface IntermediateFileTree {
   tree: ILogicalTree;
@@ -93,7 +85,7 @@ export async function flushFileTree(
     );
   });
 
-  console.info("jobs", jobs[1]);
+  console.info("jobs", jobs.length);
 
   const { workingDirectory: workDir, fs } = props;
 

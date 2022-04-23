@@ -108,12 +108,14 @@ class Runtime implements IRuntime {
       logicalTree,
       undefined
     );
-    console.log("moduleDependency", moduleDependency);
 
     if (!moduleDependency) return null;
 
     const loadedLoad = await (async () => {
-      if (moduleDependency.type === "source") {
+      if (
+        moduleDependency.type === "source" &&
+        moduleDependency.pkg.address === ""
+      ) {
         return loadLocalModulText(moduleDependency, this);
       } else {
         const pkgKey = getModuleKey(moduleDependency, this);
