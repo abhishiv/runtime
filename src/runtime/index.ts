@@ -110,6 +110,12 @@ class Runtime implements IRuntime {
     );
 
     if (!moduleDependency) return null;
+    const pkgKey = getModuleKey(moduleDependency, this);
+
+    if (this.registry.has(pkgKey)) {
+      const m = this.registry.get(pkgKey);
+      return m?.module ? m.module.exports : null;
+    }
 
     const loadedLoad = await (async () => {
       if (
@@ -118,16 +124,14 @@ class Runtime implements IRuntime {
       ) {
         return loadLocalModulText(moduleDependency, this);
       } else {
-        const pkgKey = getModuleKey(moduleDependency, this);
-
-        if (this.registry.has(pkgKey)) {
-          const m = this.registry.get(pkgKey);
-          return m?.module ? m.module.exports : null;
-        }
-
         return await loadModuleText(moduleDependency, this);
       }
     })();
+
+    if (loadedLoad.dep === undefined) {
+      console.log(moduleDependency);
+      console.log(loadedLoad);
+    }
     const processedLoad = await extractCJSDependencies(loadedLoad);
 
     const dependencies = processedLoad.deps;

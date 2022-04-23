@@ -38,7 +38,7 @@ describe("Package Manager", () => {
     expect(m).toBeDefined();
   }, 50000);
 
-  test.skip("should be able to import a react-dom npm module", async () => {
+  test("should be able to import a react-dom npm module", async () => {
     const pm = await getPM();
     await pm.boot();
 
@@ -49,7 +49,7 @@ describe("Package Manager", () => {
     expect(m).toBeDefined();
   }, 50000);
 
-  test.skip("should be able to import a typescript module", async () => {
+  test("should be able to import a typescript module", async () => {
     const pm = await getPM();
     await pm.boot();
 

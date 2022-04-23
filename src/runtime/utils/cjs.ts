@@ -153,6 +153,9 @@ export async function evalModule(
 export async function extractCJSDependencies(
   load: LoadedModuleLoad
 ): Promise<ProcessedModuleLoad> {
+  if (load.dep === undefined) {
+    console.log(load);
+  }
   const { pkg } = load.dep;
   const manifest = load.runtime.cache.get(
     `${pkg.name}@${pkg.version}/package.json`
