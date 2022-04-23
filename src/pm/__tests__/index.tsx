@@ -45,6 +45,7 @@ describe("Package Manager", () => {
     expect(pm.logicalTree).toBeDefined();
     const m = await pm.getModule("react-dom");
     console.log("react-dom", m);
+
     expect(m).toBeDefined();
   }, 50000);
 
