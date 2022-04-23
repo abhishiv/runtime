@@ -8,6 +8,7 @@ import {
 } from "../specs/runtime";
 import {
   loadModuleText,
+  loadLocalModulText,
   extractCJSDependencies,
   evalModule,
   registerModule,
@@ -73,11 +74,11 @@ class Runtime implements IRuntime {
     manifestItems.forEach((el, i) => {
       this.manifests.set(el.path, manifests[i]);
     });
-    Object.keys(this.props.builtins||{}).forEach((keyName: string) => {
+    Object.keys(this.props.builtins || {}).forEach((keyName: string) => {
       if (keyName.match(/package.json$/)) {
-        this.manifests.set(keyName, this.props.builtins[keyName])
+        this.manifests.set(keyName, this.props.builtins[keyName]);
       }
-    })
+    });
     //    try {
     //      await initialize({
     //        wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.25/esbuild.wasm',
@@ -107,16 +108,24 @@ class Runtime implements IRuntime {
       logicalTree,
       undefined
     );
+    console.log("moduleDependency", moduleDependency);
 
     if (!moduleDependency) return null;
-    const pkgKey = getModuleKey(moduleDependency, this);
 
-    if (this.registry.has(pkgKey)) {
-      const m = this.registry.get(pkgKey);
-      return m?.module ? m.module.exports : null;
-    }
+    const loadedLoad = await (async () => {
+      if (moduleDependency.type === "source") {
+        return loadLocalModulText(moduleDependency, this);
+      } else {
+        const pkgKey = getModuleKey(moduleDependency, this);
 
-    const loadedLoad = await loadModuleText(moduleDependency, this);
+        if (this.registry.has(pkgKey)) {
+          const m = this.registry.get(pkgKey);
+          return m?.module ? m.module.exports : null;
+        }
+
+        return await loadModuleText(moduleDependency, this);
+      }
+    })();
     const processedLoad = await extractCJSDependencies(loadedLoad);
 
     const dependencies = processedLoad.deps;

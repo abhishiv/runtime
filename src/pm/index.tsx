@@ -4,6 +4,7 @@ import {
   IRuntime,
   PkgManifest,
   ILogicalTree,
+  IRuntimeTranspiler,
 } from "../specs/index";
 import { IFileSystem } from "@gratico/fs";
 import { getLogicalTree } from "./utils/dependency_tree";
@@ -23,7 +24,8 @@ export class PackageManager implements IPackageManager {
     workingDirectory: string,
     fetch: Fetch,
     evalFunction?: Function,
-    builtins?: {}
+    builtins?: {},
+    transpilers?: IRuntimeTranspiler[]
   ) {
     this.props = {
       fs,
@@ -31,6 +33,7 @@ export class PackageManager implements IPackageManager {
       workingDirectory,
       evalFunction: evalFunction || eval,
       builtins: builtins || {},
+      transpilers,
     };
     this.logicalTree = null;
     this.moduleRegistry = new Map();
@@ -70,6 +73,7 @@ export class PackageManager implements IPackageManager {
         workDir: this.props.workingDirectory,
         cacheDir: "/",
         builtins: this.props.builtins,
+        transpilers: this.props.transpilers,
       });
       // TODO: fix this
       runtime.logicalTree = this.logicalTree;

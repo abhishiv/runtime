@@ -1,5 +1,5 @@
-import { mkdirP, isRelative, path as nodePath } from '@gratico/fs'
-import promisify from 'pify'
+import { mkdirP, isRelative, path as nodePath } from "@gratico/fs";
+import promisify from "pify";
 //import { transform } from 'esbuild-wasm'
 import {
   IRuntime,
@@ -9,48 +9,60 @@ import {
   LoadedModuleLoad,
   ModuleDependency,
   ILogicalTree,
-} from '../../specs/runtime'
+} from "../../specs/runtime";
 
-import { convertPathToModuleDependency, parseNPMModuleLocation } from '../../pm/utils/convertor'
-import { logicalTreeAdressToFSPath } from '../../pm/utils/dependency_tree'
-import coreModules from '../node/core/index'
+import {
+  convertPathToModuleDependency,
+  parseNPMModuleLocation,
+} from "../../pm/utils/convertor";
+import { logicalTreeAdressToFSPath } from "../../pm/utils/dependency_tree";
+import coreModules from "../node/core/index";
 
-export async function fetchSourceFile(runtime: IRuntime, path: string, fetch: Window['fetch']) {
-  const host = 'cdn.jsdelivr.net'
-  const url = `https://${host}${path}`
+export async function fetchSourceFile(
+  runtime: IRuntime,
+  path: string,
+  fetch: Window["fetch"]
+) {
+  const host = "cdn.jsdelivr.net";
+  const url = `https://${host}${path}`;
   if (runtime.cache.get(path)) {
-    const text = await Promise.resolve(runtime.cache.get(path))
-    return text
+    const text = await Promise.resolve(runtime.cache.get(path));
+    return text;
   } else {
     const promise = (async () => {
-      const resp = await fetch(url)
+      const resp = await fetch(url);
       if (resp.status === 200) {
-        return resp.text()
+        return resp.text();
       } else {
-        throw new Error(resp.status.toString())
+        throw new Error(resp.status.toString());
       }
-    })()
-    runtime.cache.set(path, promise)
-    return Promise.resolve(promise)
+    })();
+    runtime.cache.set(path, promise);
+    return Promise.resolve(promise);
   }
 }
 
 const COMMENT_REGEXP =
-  /^\s*(?<commentSlashes>(\/\*)|(\/\/))\s*[#@]\s*sourceMappingURL\s*=\s*((data:(?<mime>[^;]+)?(;charset=(?<charset>[^;]+))?;base64,(?<base64Content>[^\s*]+))|(?<url>[^\s*]+))(\s*\*\/)?\s*$/imu
+  /^\s*(?<commentSlashes>(\/\*)|(\/\/))\s*[#@]\s*sourceMappingURL\s*=\s*((data:(?<mime>[^;]+)?(;charset=(?<charset>[^;]+))?;base64,(?<base64Content>[^\s*]+))|(?<url>[^\s*]+))(\s*\*\/)?\s*$/imu;
 export const parseTextFileForSourceMaps = function (fileContent: string) {
-  const fileContentA = fileContent
+  const fileContentA = fileContent;
 
-  const parts = COMMENT_REGEXP.exec(fileContentA)
+  const parts = COMMENT_REGEXP.exec(fileContentA);
 
   // Either no source map comment or comment has invalid syntax
-  if (parts === null || !parts.groups || parts.groups.base64Content || !parts.groups.url) {
-    return
+  if (
+    parts === null ||
+    !parts.groups ||
+    parts.groups.base64Content ||
+    !parts.groups.url
+  ) {
+    return;
   } else {
     return {
       url: parts.groups.url,
-    }
+    };
   }
-}
+};
 
 // @ts-ignore
 
@@ -64,50 +76,61 @@ export const parseTextFileForSourceMaps = function (fileContent: string) {
 // summary registerModule(evaleModule(extractCJSDependencies(loadModuleText(filename))))
 
 export function getFilePath(dep: ModuleDependency, runtime: IRuntime) {
-  const filePath = dep.resolvedFSPath
-  const { pkg } = dep
-  const ext = runtime.defaultExtensions.indexOf(nodePath.extname(dep.resolvedFSPath)) == -1 ? '.js' : ''
-  return dep.resolvedFSPath + ext
+  const filePath = dep.resolvedFSPath;
+  const { pkg } = dep;
+  const ext =
+    runtime.defaultExtensions.indexOf(nodePath.extname(dep.resolvedFSPath)) ==
+    -1
+      ? ".js"
+      : "";
+  return dep.resolvedFSPath + ext;
 }
 
 export function getModuleKey(dep: ModuleDependency, runtime: IRuntime) {
-  const { pkg } = dep
-  const filePath = getFilePath(dep, runtime)
-  return `${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`
+  const { pkg } = dep;
+  const filePath = getFilePath(dep, runtime);
+  return `${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`;
 }
 
-export async function registerModule(load: EvaledModuleLoad): Promise<RegisteredModuleLoad> {
-  const { pkg } = load.dep
-  const key = getModuleKey(load.dep, load.runtime)
-  load.runtime.registry.set(key, { module: load.module })
-  return load
+export async function registerModule(
+  load: EvaledModuleLoad
+): Promise<RegisteredModuleLoad> {
+  const { pkg } = load.dep;
+  const key = getModuleKey(load.dep, load.runtime);
+  load.runtime.registry.set(key, { module: load.module });
+  return load;
 }
 
-export function defaultEvaluator(runtime: IRuntime, load: ProcessedModuleLoad) {}
-
-export async function evalModule(load: ProcessedModuleLoad, evalFunction: Function): Promise<EvaledModuleLoad> {
-  const logicalTree = load.dep.pkg
+export async function evalModule(
+  load: ProcessedModuleLoad,
+  evalFunction: Function
+): Promise<EvaledModuleLoad> {
+  const logicalTree = load.dep.pkg;
   const depModules: { [key: string]: any } = load.deps.reduce((state, dep) => {
-    if (dep.type === 'core') {
+    if (dep.type === "core") {
       return {
         ...state,
         [dep.specifiedPath]: coreModules[dep.specifiedPath],
-      }
+      };
     }
-    const key = nodePath.join(`${dep.pkg.name}@${dep.pkg.version}`, getFilePath(dep, load.runtime))
-    const record = load.runtime.registry.get(key)
+    const key = nodePath.join(
+      `${dep.pkg.name}@${dep.pkg.version}`,
+      getFilePath(dep, load.runtime)
+    );
+    const record = load.runtime.registry.get(key);
     return {
       ...state,
-      [dep.specifiedPath]: record && record.module ? record.module.exports : null,
-    }
-  }, {})
+      [dep.specifiedPath]:
+        record && record.module ? record.module.exports : null,
+    };
+  }, {});
 
   const require = function (dep: string) {
-    const m = depModules[dep]
-    return m
-  }
+    const m = depModules[dep];
+    return m;
+  };
 
-  const m = { exports: {} }
+  const m = { exports: {} };
 
   try {
     evalFunction.call(
@@ -115,34 +138,38 @@ export async function evalModule(load: ProcessedModuleLoad, evalFunction: Functi
       `(function (require, module, exports, coreModules) {
         var {process, Buffer} = coreModules;
         ${load.rawText}
-      })`,
-    )(require, m, m.exports, coreModules)
+      })`
+    )(require, m, m.exports, coreModules);
 
     return {
       ...load,
-      state: 'evaled',
+      state: "evaled",
       module: m,
-    }
+    };
   } catch (e) {
-    console.error(e)
-    throw e
+    console.error(e);
+    throw e;
   }
 }
 
-export async function extractCJSDependencies(load: LoadedModuleLoad): Promise<ProcessedModuleLoad> {
-  const { pkg } = load.dep
-  const manifest = load.runtime.cache.get(`${pkg.name}@${pkg.version}/package.json`)
+export async function extractCJSDependencies(
+  load: LoadedModuleLoad
+): Promise<ProcessedModuleLoad> {
+  const { pkg } = load.dep;
+  const manifest = load.runtime.cache.get(
+    `${pkg.name}@${pkg.version}/package.json`
+  );
 
   // TODO: extract this out
   const deps: string[] = getCJSDeps(load.rawText)
     .map((dep) => {
-      if (manifest.browser && manifest.browser[dep] !== undefined) {
-        return manifest.browser[dep]
+      if (manifest?.browser && manifest?.browser[dep] !== undefined) {
+        return manifest.browser[dep];
       } else {
-        return dep
+        return dep;
       }
     })
-    .filter((el) => el && el.length >= 0)
+    .filter((el) => el && el.length >= 0);
 
   // deps.map(dep => convertPathToModuleDependency(load.runtime, dep, pkg))
   // const parsedPath = parseNPMModuleLocation(path);
@@ -150,50 +177,65 @@ export async function extractCJSDependencies(load: LoadedModuleLoad): Promise<Pr
     ...load,
     deps: await Promise.all(
       deps.map(async (dep) => {
-        const pathIsRelative = isRelative(dep)
+        const pathIsRelative = isRelative(dep);
         const tree = pathIsRelative
           ? pkg
           : (function () {
-              const depName = parseNPMModuleLocation(dep).name
+              const depName = parseNPMModuleLocation(dep).name;
               return pkg.dependencies.has(depName)
                 ? pkg.dependencies.get(depName)
-                : (load.runtime.logicalTree as unknown as ILogicalTree).dependencies.get(depName)
-            })()
+                : (
+                    load.runtime.logicalTree as unknown as ILogicalTree
+                  ).dependencies.get(depName);
+            })();
 
         const resp = await convertPathToModuleDependency(
           load.runtime,
-          pathIsRelative ? './' + nodePath.join(nodePath.dirname(load.dep.resolvedFSPath), dep) : dep,
+          pathIsRelative
+            ? "./" +
+                nodePath.join(nodePath.dirname(load.dep.resolvedFSPath), dep)
+            : dep,
           dep,
           pkg as unknown as ILogicalTree,
-          load.dep,
-        )
-        return resp
-      }),
+          load.dep
+        );
+        return resp;
+      })
     ),
-  }
+  };
 }
 
 export function getDirName(runtime: IRuntime, dep: ModuleDependency) {
-  return
+  return;
 }
 
 // fetches and caches file
-export async function defaultDependencyFileFetcher(runtime: IRuntime, dep: ModuleDependency) {
-  const { pkg } = dep
-  const { fs } = runtime.props
-  const filePath = getFilePath(dep, runtime)
-  const dirName = nodePath.join(runtime.props.workDir, 'node_modules', logicalTreeAdressToFSPath(pkg.address))
-  const fullFilePath = nodePath.join(dirName, filePath)
-  let rawText: string | undefined
+export async function defaultDependencyFileFetcher(
+  runtime: IRuntime,
+  dep: ModuleDependency
+) {
+  const { pkg } = dep;
+  const { fs } = runtime.props;
+  const filePath = getFilePath(dep, runtime);
+  const dirName = nodePath.join(
+    runtime.props.workDir,
+    "node_modules",
+    logicalTreeAdressToFSPath(pkg.address)
+  );
+  const fullFilePath = nodePath.join(dirName, filePath);
+  let rawText: string | undefined;
   try {
-    const textFile = await promisify(fs.readFile.bind(fs))(fullFilePath, 'utf8')
-    rawText = textFile
+    const textFile = await promisify(fs.readFile.bind(fs))(
+      fullFilePath,
+      "utf8"
+    );
+    rawText = textFile;
   } catch (e) {
     // console.error(e);
   }
   if (!rawText) {
-    const url = `/npm/${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`
-    let textFile = await fetchSourceFile(runtime, url, runtime.props.fetch)
+    const url = `/npm/${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`;
+    let textFile = await fetchSourceFile(runtime, url, runtime.props.fetch);
 
     //    textFile = textFile.replace('process.env.NODE_ENV', JSON.stringify('production'))
     //    try {
@@ -206,126 +248,170 @@ export async function defaultDependencyFileFetcher(runtime: IRuntime, dep: Modul
     // todo: base64 inline sourcemap instead of this or rewrite to proper url
     // todo: https://github.com/ehmicky/get-sourcemaps/issues/3
     try {
-      const match = parseTextFileForSourceMaps(textFile)
+      const match = parseTextFileForSourceMaps(textFile);
       if (match && match.url) {
-        textFile = textFile.replace(COMMENT_REGEXP, ``)
+        textFile = textFile.replace(COMMENT_REGEXP, ``);
         textFile =
           textFile +
-          '\n' +
+          "\n" +
           `//# sourceMappingURL=https://cdn.jsdelivr.net/npm/${nodePath.join(
             `${pkg.name}@${pkg.version}`,
-            nodePath.join(nodePath.dirname(filePath), match.url),
-          )}`
+            nodePath.join(nodePath.dirname(filePath), match.url)
+          )}`;
       }
     } catch (e) {
-      console.info('failed to replace sourcemaps url', e, pkg)
+      console.info("failed to replace sourcemaps url", e, pkg);
     }
     try {
-      await mkdirP(fs, nodePath.dirname(fullFilePath))
+      await mkdirP(fs, nodePath.dirname(fullFilePath));
     } catch (e) {
-      console.error('mkdir eee', e)
+      console.error("mkdir eee", e);
     }
 
     try {
-      await promisify(fs.writeFile as any)(fullFilePath, textFile)
-      runtime.cache.set(url, null)
+      await promisify(fs.writeFile as any)(fullFilePath, textFile);
+      runtime.cache.set(url, null);
     } catch (e) {
-      console.error('writefile', e, url)
+      console.error("writefile", e, url);
     }
-    rawText = textFile
+    rawText = textFile;
   }
-  return rawText
+  return rawText;
 }
 
-export async function loadModuleText(dep: ModuleDependency, runtime: IRuntime): Promise<LoadedModuleLoad> {
-  const { pkg } = dep
-  if (dep.type === 'core') {
-    return {
-      state: 'evaled',
-      dep,
-      runtime,
-      path: dep.specifiedPath,
-      rawText: '',
-    }
+export async function loadLocalModulText(
+  dep: ModuleDependency,
+  runtime: IRuntime
+): Promise<LoadedModuleLoad> {
+  const { fs, cacheDir } = runtime.props;
+  let rawText = "";
+  const filePath = nodePath.join(
+    runtime.props.workDir,
+    getFilePath(dep, runtime)
+  );
+  console.log(filePath);
+  rawText = await promisify(fs.readFile)(filePath, "utf8");
+  console.log("rawText", rawText);
+  const transpiler = runtime.props.transpilers?.find((el) =>
+    filePath.match(el.matcher)
+  );
+  if (transpiler) {
+    rawText = await transpiler.transpile(filePath, rawText);
   }
-  const { fs, cacheDir } = runtime.props
-  let rawText = ''
-  const filePath = getFilePath(dep, runtime)
-
-  const t = await defaultDependencyFileFetcher(runtime, dep)
-  if (t) rawText = t
+  console.log(rawText);
   return {
     path: filePath,
-    state: 'evaled',
+    state: "evaled",
     dep,
     rawText,
     runtime,
+  };
+}
+
+export async function loadModuleText(
+  dep: ModuleDependency,
+  runtime: IRuntime
+): Promise<LoadedModuleLoad> {
+  const { pkg } = dep;
+  if (dep.type === "core") {
+    return {
+      state: "evaled",
+      dep,
+      runtime,
+      path: dep.specifiedPath,
+      rawText: "",
+    };
   }
+  const { fs, cacheDir } = runtime.props;
+  let rawText = "";
+  const filePath = getFilePath(dep, runtime);
+
+  const t = await defaultDependencyFileFetcher(runtime, dep);
+  if (t) rawText = t;
+  return {
+    path: filePath,
+    state: "evaled",
+    dep,
+    rawText,
+    runtime,
+  };
 }
 
 const cjsExportsRegEx =
-  /(?:^\uFEFF?|[^$_a-zA-Z\xA0-\uFFFF.])(exports\s*(\[['"]|\.)|module(\.exports|\['exports'\]|\["exports"\])\s*(\[['"]|[=,\.]))/
+  /(?:^\uFEFF?|[^$_a-zA-Z\xA0-\uFFFF.])(exports\s*(\[['"]|\.)|module(\.exports|\['exports'\]|\["exports"\])\s*(\[['"]|[=,\.]))/;
 // RegEx adjusted from https://github.com/jbrantly/yabble/blob/master/lib/yabble.js#L339
 const cjsRequireRegEx =
-  /(?:^\uFEFF?|[^$_a-zA-Z\xA0-\uFFFF."'])require\s*\(\s*("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')\s*\)/g
-const commentRegEx = /(^|[^\\])(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/gm
+  /(?:^\uFEFF?|[^$_a-zA-Z\xA0-\uFFFF."'])require\s*\(\s*("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')\s*\)/g;
+const commentRegEx = /(^|[^\\])(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/gm;
 
-const stringRegEx = /("[^"\\\n\r]*(\\.[^"\\\n\r]*)*"|'[^'\\\n\r]*(\\.[^'\\\n\r]*)*')/g
+const stringRegEx =
+  /("[^"\\\n\r]*(\\.[^"\\\n\r]*)*"|'[^'\\\n\r]*(\\.[^'\\\n\r]*)*')/g;
 
 // used to support leading #!/usr/bin/env in scripts as supported in Node
-const hashBangRegEx = /^\#\!.*/
+const hashBangRegEx = /^\#\!.*/;
 
 export function getCJSDeps(source: string) {
-  cjsRequireRegEx.lastIndex = commentRegEx.lastIndex = stringRegEx.lastIndex = 0
+  cjsRequireRegEx.lastIndex =
+    commentRegEx.lastIndex =
+    stringRegEx.lastIndex =
+      0;
 
-  const deps = []
+  const deps = [];
 
-  let match
+  let match;
 
   // track string and comment locations for unminified source
   const stringLocations = [],
-    commentLocations = []
+    commentLocations = [];
 
   function inLocation(locations: any[], match: { index: any }) {
     for (let i = 0; i < locations.length; i++)
-      if (locations[i][0] < match.index && locations[i][1] > match.index) return true
-    return false
+      if (locations[i][0] < match.index && locations[i][1] > match.index)
+        return true;
+    return false;
   }
 
-  if (source.length / source.split('\n').length < 200) {
-    while ((match = stringRegEx.exec(source))) stringLocations.push([match.index, match.index + match[0].length])
+  if (source.length / source.split("\n").length < 200) {
+    while ((match = stringRegEx.exec(source)))
+      stringLocations.push([match.index, match.index + match[0].length]);
 
     // TODO: track template literals here before comments
 
     while ((match = commentRegEx.exec(source))) {
       // only track comments not starting in strings
       if (!inLocation(stringLocations, match))
-        commentLocations.push([match.index + match[1].length, match.index + match[0].length - 1])
+        commentLocations.push([
+          match.index + match[1].length,
+          match.index + match[0].length - 1,
+        ]);
     }
   }
 
   while ((match = cjsRequireRegEx.exec(source))) {
     // ensure we're not within a string or comment location
-    if (!inLocation(stringLocations, match) && !inLocation(commentLocations, match)) {
-      let dep = match[1].substr(1, match[1].length - 2)
+    if (
+      !inLocation(stringLocations, match) &&
+      !inLocation(commentLocations, match)
+    ) {
+      let dep = match[1].substr(1, match[1].length - 2);
       // skip cases like require('" + file + "')
-      if (dep.match(/"|'/)) continue
+      if (dep.match(/"|'/)) continue;
       // trailing slash requires are removed as they don't map mains in SystemJS
-      if (dep[dep.length - 1] == '/') dep = dep.substr(0, dep.length - 1)
-      deps.push(dep)
+      if (dep[dep.length - 1] == "/") dep = dep.substr(0, dep.length - 1);
+      deps.push(dep);
     }
   }
 
-  return deps
+  return deps;
 }
 
 export function extractModuleName(el: string) {
-  const scopedModule = el[0] === '@'
-  const parts = el.split('/')
+  const scopedModule = el[0] === "@";
+  const parts = el.split("/");
   return scopedModule
     ? {
-        moduleName: parts.slice(0, 2).join('/'),
+        moduleName: parts.slice(0, 2).join("/"),
         path: parts.slice(2, parts.length),
       }
-    : { moduleName: parts[0], path: parts.slice(1, parts.length) }
+    : { moduleName: parts[0], path: parts.slice(1, parts.length) };
 }

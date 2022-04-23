@@ -1,6 +1,6 @@
 import { IFileSystem } from "@gratico/fs";
 import { ILogicalTree } from "./runtime";
-import { IRuntime } from "./runtime";
+import { IRuntime, IRuntimeTranspiler } from "./runtime";
 type Fetch = Window["fetch"];
 
 export interface IPackageManagerProps {
@@ -11,6 +11,7 @@ export interface IPackageManagerProps {
   builtins: {
     [key: string]: any;
   };
+  transpilers?: IRuntimeTranspiler[];
 }
 export interface IPackageManager {
   props: IPackageManagerProps;

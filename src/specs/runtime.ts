@@ -1,5 +1,11 @@
 import { IFileSystem, IAdapterRecord, FileType } from "@gratico/fs";
 import { IPatch } from "@gratico/atom";
+export interface IRuntimeTranspiler {
+  include?: string[];
+  exclude?: string[];
+  matcher: RegExp;
+  transpile: (path: string, text: string) => Promise<string>;
+}
 
 export interface IRuntimeProps {
   plugins: IRuntimePlugin[];
@@ -11,6 +17,7 @@ export interface IRuntimeProps {
   builtins: {
     [key: string]: any;
   };
+  transpilers?: IRuntimeTranspiler[];
 }
 
 export interface ILogicalTree {
