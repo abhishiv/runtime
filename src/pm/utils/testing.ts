@@ -3,6 +3,7 @@ import { InMemoryAdapter } from "@gratico/fs";
 import { IFileSystem } from "@gratico/fs";
 import promisify from "pify";
 import nodeFS from "fs";
+import { mkdirP, path as nodePath } from "@gratico/fs";
 
 const pkg = require("../../__fixtures__/testrepo/package-lock.json");
 const pkgLock = require("../../__fixtures__/testrepo/package-lock.json");
@@ -44,16 +45,20 @@ export async function writeTestFiles(fs: IFileSystem) {
   return fs;
 }
 
-export async function createTestFilesystem() {
+export async function createTestFilesystem(rootDir: string = "/") {
   const syncAdapter = new InMemoryAdapter();
   const fs = new FileSystem(syncAdapter);
-  fs.mkdirSync("/");
+  await mkdirP(fs, rootDir);
 
-  await promisify(fs.writeFile)("/package.json", JSON.stringify(pkg, null, 2), {
-    encoding: "utf8",
-  });
   await promisify(fs.writeFile)(
-    "/package-lock.json",
+    nodePath.join(rootDir, "package.json"),
+    JSON.stringify(pkg, null, 2),
+    {
+      encoding: "utf8",
+    }
+  );
+  await promisify(fs.writeFile)(
+    nodePath.join(rootDir, "package-lock.json"),
     JSON.stringify(pkgLock, null, 2),
     {
       encoding: "utf8",

@@ -22,16 +22,17 @@ const typescriptTranspiler: IRuntimeTranspiler = {
 };
 
 export async function getPM() {
-  const fs = await createTestFilesystem();
+  const rootDir = "/checkouts/submodule";
+  const fs = await createTestFilesystem(rootDir);
   await pify(fs.writeFile)(
-    "/sample.tsx",
+    path.join(rootDir, "sample.tsx"),
     `import React from 'immer';
     export * from 'react'
     export const R = React
     `
   );
-  console.log("written file");
-  const pm = new PackageManager(fs, "/", fetch, eval, {}, [
+  console.log("written file", rootDir);
+  const pm = new PackageManager(fs, rootDir, fetch, eval, {}, [
     typescriptTranspiler,
   ]);
   return pm;
