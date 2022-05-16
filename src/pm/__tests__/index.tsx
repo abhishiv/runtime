@@ -16,17 +16,6 @@ export async function getPM() {
 describe("Package Manager", () => {
   beforeAll(async () => {});
 
-  test("should be able to import a immer npm module", async () => {
-    const pm = await getPM();
-    await pm.boot();
-
-    expect(pm.logicalTree).toBeDefined();
-    const m = await pm.getModule("immer");
-
-    console.log("immer", m);
-    expect(m).toBeDefined();
-  }, 150000);
-
   test("should be able to import a react npm module", async () => {
     const pm = await getPM();
     await pm.boot();

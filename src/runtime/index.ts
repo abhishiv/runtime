@@ -44,6 +44,7 @@ class Runtime implements IRuntime {
   }
 
   async boot() {
+    console.time("Runtime#boot");
     const files = await this.props.fs.adapter.query({
       id: { $regex: this.props.workDir },
     });
@@ -80,6 +81,7 @@ class Runtime implements IRuntime {
         this.manifests.set(keyName, this.props.builtins[keyName]);
       }
     });
+    console.timeEnd("Runtime#boot");
     //    try {
     //      await initialize({
     //        wasmURL: 'https://cdn.jsdelivr.net/npm/esbuild-wasm@0.14.25/esbuild.wasm',
@@ -141,7 +143,7 @@ class Runtime implements IRuntime {
     await preRegisterModule(processedLoad);
 
     const dependencies = processedLoad.deps;
-    const promises = dependencies.map(async (dependencyModule) => {
+    const promises = dependencies.map((dependencyModule) => {
       return async () => {
         const dep = dependencyModule.specifiedPath;
         const pathIsRelative = isRelative(dep);

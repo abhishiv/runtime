@@ -40,6 +40,7 @@ export class PackageManager implements IPackageManager {
   }
 
   async syncFileSystem(runtime: IRuntime) {
+    console.time("PM#syncFileSystem");
     if (!this.logicalTree) throw new Error("boot() before getModule");
     const mainfests: PkgManifest[] = await populateFileSystem(
       {
@@ -51,6 +52,7 @@ export class PackageManager implements IPackageManager {
     mainfests.forEach((m) => {
       runtime.cache.set(`${m.name}@${m.version}/package.json`, m);
     });
+    console.timeEnd("PM#syncFileSystem");
   }
   async boot() {
     this.logicalTree = await getLogicalTree(

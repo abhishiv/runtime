@@ -35,7 +35,9 @@ export async function populateFileSystem(
     })
   );
   console.info("flushFileTree");
+  console.time("flushFileTree");
   await flushFileTree(props, logicalTree, downloadPackages);
+  console.timeEnd("flushFileTree");
   const logicalTree2 = await getLogicalTree(props.fs, props.workingDirectory);
   const pkgsDict = getAddressList(logicalTree2);
   const tasks = Object.values(pkgsDict)
