@@ -29,7 +29,7 @@ describe("Package Manager Populate", () => {
     });
 
     expect(Object.keys(list).length).toBeGreaterThan(1);
-  }, 5000);
+  }, 150000);
 
   test("populateFileSystem", async () => {
     const pm = await getPM();
@@ -43,5 +43,5 @@ describe("Package Manager Populate", () => {
       "/node_modules"
     )) as string[];
     expect(pkgs.length).toBeGreaterThan(0);
-  }, 45000);
+  }, 150000);
 });

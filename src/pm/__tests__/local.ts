@@ -48,5 +48,5 @@ describe("Package Manager", () => {
     expect(pm.logicalTree).toBeDefined();
     const m = await pm.getModule("./sample.tsx");
     expect(m).toBeDefined();
-  }, 25000);
+  }, 150000);
 });

@@ -25,7 +25,7 @@ describe("Package Manager", () => {
 
     console.log("immer", m);
     expect(m).toBeDefined();
-  }, 50000);
+  }, 150000);
 
   test("should be able to import a react npm module", async () => {
     const pm = await getPM();
@@ -36,7 +36,7 @@ describe("Package Manager", () => {
 
     console.log("react", m);
     expect(m).toBeDefined();
-  }, 50000);
+  }, 150000);
 
   test("should be able to import a react-dom npm module", async () => {
     const pm = await getPM();
@@ -47,7 +47,7 @@ describe("Package Manager", () => {
     console.log("react-dom", m);
 
     expect(m).toBeDefined();
-  }, 50000);
+  }, 150000);
 
   test.skip("should be able to import a typescript module", async () => {
     const pm = await getPM();
@@ -56,5 +56,5 @@ describe("Package Manager", () => {
     expect(pm.logicalTree).toBeDefined();
     const m = await pm.getModule("typescript");
     expect(m).toBeDefined();
-  }, 25000);
+  }, 150000);
 });

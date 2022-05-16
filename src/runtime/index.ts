@@ -111,7 +111,6 @@ class Runtime implements IRuntime {
       logicalTree,
       undefined
     );
-    console.log("importModule", path, logicalTree.name);
 
     if (!moduleDependency) return null;
 
