@@ -8,7 +8,7 @@ install:
 
 .PHONY: test
 test:
-	./node_modules/.bin/jest --runInBand --passWithNoTests
+	./node_modules/.bin/jest --runInBand --passWithNoTests ----testNamePattern immer
 
 .PHONY: build
 build:
