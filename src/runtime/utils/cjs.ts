@@ -109,7 +109,6 @@ export async function registerModule(
   const key = getModuleKey(load.dep, load.runtime);
   const l = load.runtime.registry.get(key);
   if (!l) throw new Error("no module");
-  l.done = true;
   Object.assign(l.module, load.module);
   return load;
 }
