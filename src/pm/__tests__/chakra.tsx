@@ -20,7 +20,12 @@ describe("Package Manager", () => {
     await pm.boot();
 
     expect(pm.logicalTree).toBeDefined();
+    //const react = await pm.getModule("react");
+    //await pm.getModule("@chakra-ui/utils");
+    //await pm.getModule("@chakra-ui/system");
+
     const m = await pm.getModule("@chakra-ui/react");
+    console.log(m);
     expect(m).toBeDefined();
-  }, 25000);
+  }, 250000);
 });

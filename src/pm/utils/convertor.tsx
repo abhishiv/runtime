@@ -3,6 +3,8 @@ import { isRelative, path as nodePath } from "@gratico/fs";
 import { IRuntime, ModuleDependency, ILogicalTree } from "../../specs/index";
 import coreModules from "../../runtime/node/core/index";
 import { getLogicalTree, logicalTreeAdressToFSPath } from "./dependency_tree";
+import { debug } from "console";
+import pify from "pify";
 
 // parse depName into an object
 export function parseNPMModuleLocation(path: string): {
@@ -15,7 +17,7 @@ export function parseNPMModuleLocation(path: string): {
     const main = parts.length === 2;
     return {
       name: parts.slice(0, 2).join("/"),
-      ...(main ? {} : { path: "./" + parts.slice(2).join("/") }),
+      ...(main ? {} : { path: parts.slice(2).join("/") }),
       main,
     };
   } else {
@@ -23,7 +25,7 @@ export function parseNPMModuleLocation(path: string): {
     return {
       main,
       name: parts[0],
-      ...(main ? {} : { path: "./" + parts.slice(1).join("/") }),
+      ...(main ? {} : { path: parts.slice(1).join("/") }),
     };
   }
 }
@@ -48,11 +50,13 @@ export function getModulePath(
     `${lTree.name}@${lTree.version}/package.json`
   );
   if (!pkgJSON) {
+    //debugger;
     console.log([...runtime.cache.keys()]);
     console.log(pkgJSON, `${lTree.name}@${lTree.version}/package.json`);
   }
   // console.log(lTree, pkgJSON);
-  const main = pkgJSON.main || pkgJSON.files[0];
+  // pkgJSON.files[0]
+  const main = pkgJSON.main || "index.js";
   //if (lTree.name === 'react-icons') {
   //  console.log(parsedPath)
   //}
@@ -123,25 +127,58 @@ export async function convertPathToModuleDependency(
     }
     if (!tree) {
       console.error(npmModule, path);
-      //      debugger
+      //debugger;
       throw new Error("runtime #convertPathToModuleDependency ");
     }
     const modulePath = getModuleLocaton(tree);
     //    console.log(npmModule, tree)
     //    console.log('meta', modulePath, tree, npmModule)
-    const p =
-      npmModule.name === "react-icons" && npmModule.path == "./bi"
-        ? npmModule.path + "/index.js"
-        : "./" + nodePath.join(npmModule.path || "index.js");
-    return {
-      parent: parentDep,
-      type: "npm",
-      pkg: tree,
-      specifiedPath: path,
-      modulePath,
-      resolvedFSPath: npmModule.main
-        ? getModulePath(runtime, tree, npmModule)
-        : p,
-    };
+    let p;
+    try {
+      const dirPath = nodePath.join(".", npmModule.path as string);
+      const packageJSONPath = nodePath.join(
+        runtime.props.workDir,
+        "node_modules",
+        logicalTreeAdressToFSPath(tree.address),
+        dirPath,
+        "package.json"
+      );
+      const jsonText = await pify(runtime.props.fs.readFile)(
+        packageJSONPath,
+        "utf8"
+      );
+      const json = JSON.parse(jsonText);
+      p = "./" + nodePath.join(dirPath, json.main);
+      const npmParentDep: ModuleDependency = {
+        parent: parentDep,
+        type: "npm",
+        pkg: tree,
+        specifiedPath: path,
+        modulePath,
+        resolvedFSPath: npmModule.main
+          ? getModulePath(runtime, tree, npmModule)
+          : "./index.js",
+      };
+      return {
+        parent: npmParentDep,
+        type: "source",
+        pkg: tree,
+        specifiedPath: path,
+        modulePath,
+        resolvedFSPath: p,
+      };
+    } catch (e) {
+      p = "./" + nodePath.join(npmModule.path || "index.js");
+      return {
+        parent: parentDep,
+        type: "npm",
+        pkg: tree,
+        specifiedPath: path,
+        modulePath,
+        resolvedFSPath: npmModule.main
+          ? getModulePath(runtime, tree, npmModule)
+          : p,
+      };
+    }
   }
 }

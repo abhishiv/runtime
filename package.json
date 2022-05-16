@@ -1,6 +1,6 @@
 {
   "name": "@gratico/runtime",
-  "version": "0.8.10",
+  "version": "0.8.11",
   "author": "Abhishiv Saxena<abhishiv@gmail.com>",
   "description": "CJS Runtime for browser",
   "license": "UNLICENSED",
@@ -58,30 +58,5 @@
     "jest": "^27.5.1",
     "prettier": "^2.6.2",
     "typescript": "^4.1.2"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "reporters": [
-      "default"
-    ],
-    "setupFiles": [],
-    "transformIgnorePatterns": [
-      "node_modules"
-    ],
-    "modulePathIgnorePatterns": [
-      "__mocks__",
-      "__fixtures__",
-      "dist"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/packages/hq",
-      "<rootDir>/node_modules",
-      "<rootDir>/dist",
-      "<rootDir>/packages/ts-simple-type",
-      "<rootDir>/packages/codesense/src/__tests__/__fixtures__",
-      "<rootDir>/packages/hub/src/e2e",
-      "<rootDir>/packages/*/dist",
-      "<rootDir>/packages/shell/src/public/bundles"
-    ]
   }
 }

@@ -32,6 +32,7 @@ export async function fetchSourceFile(
       if (resp.status === 200) {
         return resp.text();
       } else {
+        console.log(path);
         throw new Error(resp.status.toString());
       }
     })();
@@ -74,6 +75,7 @@ export const parseTextFileForSourceMaps = function (fileContent: string) {
 // summary registerModule(evaleModule(extractCJSDependencies(loadModuleText(filename))))
 
 export function getFilePath(dep: ModuleDependency, runtime: IRuntime) {
+  const parentPath = dep.parent ? dep.parent.resolvedFSPath : "";
   const filePath = dep.resolvedFSPath;
   const { pkg } = dep;
   const ext =
@@ -81,6 +83,7 @@ export function getFilePath(dep: ModuleDependency, runtime: IRuntime) {
     -1
       ? ".js"
       : "";
+
   return dep.resolvedFSPath + ext;
 }
 
@@ -90,18 +93,31 @@ export function getModuleKey(dep: ModuleDependency, runtime: IRuntime) {
   return `${nodePath.join(`${pkg.name}@${pkg.version}`, filePath)}`;
 }
 
+export async function preRegisterModule(
+  load: ProcessedModuleLoad
+): Promise<RegisteredModuleLoad> {
+  const { pkg } = load.dep;
+  const key = getModuleKey(load.dep, load.runtime);
+  load.runtime.registry.set(key, { module: { exports: {} } });
+  return load;
+}
+
 export async function registerModule(
   load: EvaledModuleLoad
 ): Promise<RegisteredModuleLoad> {
   const { pkg } = load.dep;
   const key = getModuleKey(load.dep, load.runtime);
-  load.runtime.registry.set(key, { module: load.module });
+  const l = load.runtime.registry.get(key);
+  if (!l) throw new Error("no module");
+  l.done = true;
+  Object.assign(l.module, load.module);
   return load;
 }
 
 export async function evalModule(
   load: ProcessedModuleLoad,
-  evalFunction: Function
+  evalFunction: Function,
+  runtime: IRuntime
 ): Promise<EvaledModuleLoad> {
   const logicalTree = load.dep.pkg;
   const depModules: { [key: string]: any } = load.deps.reduce((state, dep) => {
@@ -190,12 +206,12 @@ export async function extractCJSDependencies(
                   ).dependencies.get(depName);
             })();
 
+        const p = pathIsRelative
+          ? "./" + nodePath.join(nodePath.dirname(load.dep.resolvedFSPath), dep)
+          : dep;
         const resp = await convertPathToModuleDependency(
           load.runtime,
-          pathIsRelative
-            ? "./" +
-                nodePath.join(nodePath.dirname(load.dep.resolvedFSPath), dep)
-            : dep,
+          p,
           dep,
           pkg as unknown as ILogicalTree,
           load.dep
@@ -271,7 +287,7 @@ export async function defaultDependencyFileFetcher(
       await promisify(fs.writeFile as any)(fullFilePath, textFile);
       runtime.cache.set(url, null);
     } catch (e) {
-      console.error("writefile", e, url);
+      //console.error("writefile", e, url);
     }
     rawText = textFile;
   }

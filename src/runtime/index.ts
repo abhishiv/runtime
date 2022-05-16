@@ -13,6 +13,7 @@ import {
   evalModule,
   registerModule,
   getModuleKey,
+  preRegisterModule,
 } from "./utils/cjs";
 import { getLogicalTree } from "../pm/utils/dependency_tree";
 import {
@@ -99,6 +100,8 @@ class Runtime implements IRuntime {
       return this.props.builtins[path];
     }
 
+    const mod = {};
+
     const logicalTree =
       lTree || (await getLogicalTree(this.props.fs, this.props.workDir));
     const moduleDependency = await convertPathToModuleDependency(
@@ -108,8 +111,10 @@ class Runtime implements IRuntime {
       logicalTree,
       undefined
     );
+    console.log("importModule", path, logicalTree.name);
 
     if (!moduleDependency) return null;
+
     const pkgKey = getModuleKey(moduleDependency, this);
 
     if (this.registry.has(pkgKey)) {
@@ -134,29 +139,45 @@ class Runtime implements IRuntime {
     }
     const processedLoad = await extractCJSDependencies(loadedLoad);
 
+    await preRegisterModule(processedLoad);
+
     const dependencies = processedLoad.deps;
     const promises = dependencies.map(async (dependencyModule) => {
-      const dep = dependencyModule.specifiedPath;
-      const pathIsRelative = isRelative(dep);
-      const parsed = parseNPMModuleLocation(dep);
-      const logicalTree = moduleDependency.pkg;
-      let tree = pathIsRelative
-        ? logicalTree
-        : logicalTree.dependencies.get(parsed.name);
-      if (tree === undefined) {
-        tree = (
-          await getLogicalTree(this.props.fs, this.props.workDir)
-        ).dependencies.get(parsed.name);
-      }
-      const depModule = await this.importModule(
-        dependencyModule.resolvedFSPath,
-        tree
-      );
-      return depModule;
+      return async () => {
+        const dep = dependencyModule.specifiedPath;
+        const pathIsRelative = isRelative(dep);
+        const parsed = parseNPMModuleLocation(dep);
+        const logicalTree = moduleDependency.pkg;
+        let tree = pathIsRelative
+          ? logicalTree
+          : logicalTree.dependencies.get(parsed.name);
+        if (tree === undefined) {
+          tree = (
+            await getLogicalTree(this.props.fs, this.props.workDir)
+          ).dependencies.get(parsed.name);
+        }
+        if (
+          dependencyModule.resolvedFSPath ===
+          "use-animation-state/dist/chakra-ui-hooks-use-animation-state.cjs.js"
+        ) {
+          //debugger;
+        }
+        const depModule = await this.importModule(
+          dependencyModule.resolvedFSPath,
+          tree
+        );
+        return depModule;
+      };
     });
-    await Promise.all(promises);
+    for await (const promise of promises) {
+      await promise();
+    }
 
-    const evaledLoad = await evalModule(processedLoad, this.props.evalFunction);
+    const evaledLoad = await evalModule(
+      processedLoad,
+      this.props.evalFunction,
+      this
+    );
     const registeredLoad = await registerModule(evaledLoad);
     return registeredLoad ? (registeredLoad as any).module.exports : null;
   }
