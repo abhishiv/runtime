@@ -12,7 +12,7 @@ export class LogicalTree implements ILogicalTree {
   bundled: boolean
   integrity: string
   dependencies: Map<any, any>
-  requiredBy: Set<any>
+  requiredBy: Set<ILogicalTree>
   resolved: any
   constructor(name: string, address: string, opts: any) {
     this.name = name

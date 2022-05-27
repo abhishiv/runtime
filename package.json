@@ -1,6 +1,6 @@
 {
   "name": "@gratico/runtime",
-  "version": "0.8.12",
+  "version": "0.8.14",
   "author": "Abhishiv Saxena<abhishiv@gmail.com>",
   "description": "CJS Runtime for browser",
   "license": "UNLICENSED",
